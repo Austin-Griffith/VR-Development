@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)http://iron-lab.org/VR/assignment2/DroneBug.html -->
+<html lang="en"><!--  example at http://graphics.cs.wisc.edu/Courses/559-f2015/Examples/DroneBug/quad.html --><!-- -->
+
+<link rel="stylesheet" href="DroneBug/style.css">
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+	<script src="./DroneBug/jquery.min.js"></script>
+	</head>
+	<body>
+
+
+
+		<canvas id="canvas" width="800" height="550" style="border:5px solid blue;">
+		 Your browser does not support the canvas element.
+
+		 <!-- <div id="clouds">
+			 <div class="cloud x1"></div>
+			 <div class="cloud x2"></div>
+			 <div class="cloud x3"></div>
+			 <div class="cloud x4"></div>
+			 <div class="cloud x5"></div>
+			 <div class="cloud x6"></div>
+			 <div class="cloud x7"></div>
+		 </div> -->
+
+
+	<script type="text/javascript" src="./DroneBug/DroneBug.js"></script>
+
+	<script type="text/javascript">
+
+
+	//A list of keys that are currently pressed down
+	var keysdown = {};
+	var keyup = {} ;
+
+	//Event listener for when the user presses a key
+	window.addEventListener("keydown", function (event) {
+		if (event.defaultPrevented) {
+			return; // Do nothing if the event was already processed
+		}
+
+		keysdown[event.key] = true;
+		console.log(event.key);
+
+		// Cancel the default action to avoid it being handled twice
+		event.preventDefault();
+	}, true);
+	// the last option dispatches the event to the listener first,
+	// then dispatches event to window
+
+	//Event listener for when the user releases a key
+	window.addEventListener("keyup", function (event) {
+		if (event.defaultPrevented) {
+			return; // Do nothing if the event was already processed
+		}
+		keysdown[event.key] = false;
+		// Cancel the default action to avoid it being handled twice
+		event.preventDefault();
+	}, true);
+	// the last option dispatches the event to the listener first,
+	// then dispatches event to window
+
+
+
+
+		$(window).bind("load", function() {
+			//Variables representing the canvas and the canvas' context
+			//(the context is used for actually drawing on the canvas)
+			var canvas = document.getElementById("canvas");
+			var context = canvas.getContext("2d");
+
+			var fps = 0; //this is the fps that is displayed to the user
+			var framesThisSecond = 0; //this is a counter that counts how many frames we draw every second
+
+			//Declaring Array of DroneBugs if we want more than one in the canvas window
+			var DroneBugs = [];
+			var Drone ;
+			// make some bugs
+			// DroneBugs.push(new DroneBug(context));
+
+			Drone = new DroneBug(context) ;
+
+			//arguements for constructor are context, x position, y position and size of bug
+			// size is on a 0.0 -->  1.0 scale
+			// DroneBugs.push(new DroneBug(context,350,75,.6));
+
+
+			setInterval(function() { fps = framesThisSecond; framesThisSecond = 0; }, 1000);
+
+			//start drawing the first frame
+			requestAnimationFrame(mainLoop);
+			//Game Loop
+			function mainLoop() {
+				processInput() ;
+				update();
+				draw();
+				requestAnimationFrame(mainLoop); //continuously calling mainLoop function
+			}
+
+			//Handle user input by adjusting DroneBug velocity based on keys pressed
+			function processInput()
+			{
+			     if(keysdown.ArrowLeft) {
+						 console.log("pressing left") ;
+			       --Drone.velocityX; //equivalent to DroneBug.velocityX = DroneBug.velocityX - 1;
+						console.log(DroneBug.velocityX) ;
+			    }
+			    if(keysdown.ArrowUp){
+							console.log("pressing up") ;
+			        --Drone.velocityY;
+							console.log(DroneBug.velocityY) ;
+			    }
+			    if (keysdown.ArrowRight) {
+						console.log("pressing right") ;
+			      ++Drone.velocityX;//equivalent to DroneBug.velocityX = DroneBug.velocityX + 1;
+						console.log(DroneBug.velocityX) ;
+			    }
+			    if (keysdown.ArrowDown) {
+						console.log("pressing down") ;
+			      ++Drone.velocityY;
+						console.log(DroneBug.velocityY) ;
+			    }
+			}		//end of processInput function
+
+					//Here is where we would update the state of our game or simulation --->  where you make things move
+			function update() {
+				// DroneBugs.forEach(function(c) { c.update() ; } )
+				Drone.update() ;
+
+			}
+
+			//Draw the scene. Here we simply erase what was previously drawn, then draw it again
+			function draw() {
+				//clear our drawing
+				context.clearRect(0, 0, canvas.width, canvas.height);
+				//save the coordinate frame (in case we wanted to draw other things after the bugs)
+				context.save();
+				//draw each of the bugs
+				// DroneBugs.forEach(function(c) { c.draw(); })
+				Drone.draw() ;
+				//restore the coordinate frame (in case we wanted to draw other things)
+				context.restore();
+
+				//draw the fps counter
+				 context.fillText("FPS: " + fps, 10, 25);
+
+				 //count a frame as drawn
+				 ++framesThisSecond;
+
+			}
+
+		});
+
+	</script>
+
+</canvas></body></html>
