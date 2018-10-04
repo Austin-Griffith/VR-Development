@@ -9,8 +9,6 @@
 	</head>
 	<body>
 
-
-
 		<canvas id="canvas" width="800" height="550" style="border:5px solid blue;">
 		 Your browser does not support the canvas element.
 
@@ -28,32 +26,22 @@
 	<script type="text/javascript" src="./DroneBug/DroneBug.js"></script>
 
 	<script type="text/javascript">
-
-
 	//A list of keys that are currently pressed down
 	var keysdown = {};
-	var keyup = {} ;
-
 	//Event listener for when the user presses a key
 	window.addEventListener("keydown", function (event) {
-		if (event.defaultPrevented) {
-			return; // Do nothing if the event was already processed
-		}
-
+		if (event.defaultPrevented) {return; } // Do nothing if the event was already processed
 		keysdown[event.key] = true;
 		console.log(event.key);
-
 		// Cancel the default action to avoid it being handled twice
 		event.preventDefault();
 	}, true);
 	// the last option dispatches the event to the listener first,
 	// then dispatches event to window
-
 	//Event listener for when the user releases a key
-	window.addEventListener("keyup", function (event) {
-		if (event.defaultPrevented) {
-			return; // Do nothing if the event was already processed
-		}
+	window.addEventListener("keyup", function (event)
+	{
+		if (event.defaultPrevented) { return; }// Do nothing if the event was already processed
 		keysdown[event.key] = false;
 		// Cancel the default action to avoid it being handled twice
 		event.preventDefault();
@@ -61,39 +49,58 @@
 	// the last option dispatches the event to the listener first,
 	// then dispatches event to window
 
-
-
+	var maxFps = 60; //max FPS allowed
+	function updateFrameRate(newFrameRate)
+		{
+			maxFps = newFrameRate;
+			document.getElementById("FrameRateLabel").innerHTML=maxFps;
+		}
+	 var frameCount = 0; //count total number of frames rendered
 
 		$(window).bind("load", function() {
 			//Variables representing the canvas and the canvas' context
 			//(the context is used for actually drawing on the canvas)
+
+			// var background = document.getElementById("clouds") ;
+
 			var canvas = document.getElementById("canvas");
 			var context = canvas.getContext("2d");
-
 			var fps = 0; //this is the fps that is displayed to the user
 			var framesThisSecond = 0; //this is a counter that counts how many frames we draw every second
 
 			//Declaring Array of DroneBugs if we want more than one in the canvas window
-			var DroneBugs = [];
-			var Drone ;
+			// var DroneBugs = [];
 			// make some bugs
 			// DroneBugs.push(new DroneBug(context));
-
-			Drone = new DroneBug(context) ;
-
 			//arguements for constructor are context, x position, y position and size of bug
 			// size is on a 0.0 -->  1.0 scale
 			// DroneBugs.push(new DroneBug(context,350,75,.6));
-
+			var Drone ;
+			Drone = new DroneBug(context) ;
 
 			setInterval(function() { fps = framesThisSecond; framesThisSecond = 0; }, 1000);
+
+			var lastFrameTimeMs = 0; //last time the loop was run
+			// var timestamp =
 
 			//start drawing the first frame
 			requestAnimationFrame(mainLoop);
 			//Game Loop
-			function mainLoop() {
+			function mainLoop(timestamp) {
+
+				// Throttle the frame rate based on the slider value
+			if (timestamp < lastFrameTimeMs + (1000 / maxFps))
+			{
+					requestAnimationFrame(mainLoop);
+					return;
+				}
+				var delta = timestamp - lastFrameTimeMs;
+				console.log("Drone.POSx = " + Drone.posX)
+				lastFrameTimeMs = timestamp;
+
 				processInput() ;
-				update();
+				update(delta);
+				console.log("Drone.posX = " + Drone.posX)
 				draw();
 				requestAnimationFrame(mainLoop); //continuously calling mainLoop function
 			}
@@ -127,7 +134,6 @@
 			function update() {
 				// DroneBugs.forEach(function(c) { c.update() ; } )
 				Drone.update() ;
-
 			}
 
 			//Draw the scene. Here we simply erase what was previously drawn, then draw it again
@@ -154,4 +160,9 @@
 
 	</script>
 
-</canvas></body></html>
+</canvas>
+
+<input type="range"  min="1" max="60" value="60" onchange="updateFrameRate(this.value)"/>
+	<span id="FrameRateLabel">60</span>
+
+</body></html>
